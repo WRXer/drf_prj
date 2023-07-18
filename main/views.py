@@ -13,6 +13,24 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     permission_classes = [CustomCoursePermission]
 
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            self.permission_classes = [IsOwnerOrStaff]
+        return super().get_permissions()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            queryset = Course.objects.all()
+        else:
+            queryset = Course.objects.exclude(owner__isnull=True)
+        return queryset
+
+    def perform_create(self, serializer):
+        new_lesson = serializer.save()
+        new_lesson.owner = self.request.user
+        new_lesson.save()
+
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [IsOwner]
@@ -26,6 +44,14 @@ class LessonCreateAPIView(generics.CreateAPIView):
 class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            queryset = Lesson.objects.all()
+        else:
+            queryset = Lesson.objects.exclude(owner__isnull=True)
+        return queryset
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
