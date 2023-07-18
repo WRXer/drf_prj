@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from datetime import date
 from users.models import User
@@ -10,6 +11,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100)
     preview = models.ImageField(upload_to='previews/', verbose_name='превью курса', **NULLABLE)
     description = models.TextField()
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -21,6 +23,7 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to='lesson_previews/', verbose_name='превью урока', **NULLABLE)
     video_link = models.URLField()
     course = models.ForeignKey(Course, default=1, on_delete=models.CASCADE, related_name='lessons')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
