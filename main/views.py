@@ -5,6 +5,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from main.models import Course, Lesson, Payment, Subscription
+from main.paginators import CoursePaginator, LessonPaginator
 from main.permissions import IsOwnerOrStaff, IsOwner, CustomCoursePermission
 from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 
@@ -14,6 +15,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
     permission_classes = [CustomCoursePermission]
+    pagination_class = CoursePaginator
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH']:
@@ -46,6 +48,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
 class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
+    pagination_class = LessonPaginator
 
     def get_queryset(self):
         user = self.request.user
