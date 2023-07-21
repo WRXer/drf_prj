@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.filters import OrderingFilter
-from main.models import Course, Lesson, Payment
+from rest_framework.response import Response
+
+from main.models import Course, Lesson, Payment, Subscription
 from main.permissions import IsOwnerOrStaff, IsOwner, CustomCoursePermission
-from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer
+from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 
 
 # Create your views here.
@@ -81,3 +83,33 @@ class PaymentListAPIView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ("paid_course", 'paid_lesson', 'payment_method',)
     ordering_fields = ('payment_date',)
+
+
+class SubscribeView(generics.CreateAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+
+    def perform_create(self, serializer):
+        course_id = self.kwargs['course_id']
+        course = Course.objects.get(pk=course_id)
+        serializer.save(user=self.request.user, course=course)
+
+class UnsubscribeView(generics.DestroyAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+
+    def get_object(self):
+        user = self.request.user
+        course_id = self.kwargs['course_id']
+        try:
+            subscription = Subscription.objects.get(user=user, course_id=course_id)
+        except Subscription.DoesNotExist:
+            return None
+        return subscription
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance is not None:
+            self.perform_destroy(instance)
+            return Response({"detail": "Подписка отключена."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Подписка не найдена."}, status=status.HTTP_404_NOT_FOUND)
