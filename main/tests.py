@@ -149,15 +149,15 @@ class MainTestCase(APITestCase):
         """
         data = {
             "user": self.user.id,
+            "created_at": '',
             "course": self.course.id
         }
         url = f'/subscribe/{self.course.id}/'  # URL для создания подписки на курс
         response = self.client.post(url, data=data)
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        updated_data = Subscription.objects.get(id=self.course.id)
-        self.assertEqual(updated_data.user.id, self.user.id)
-        self.assertEqual(updated_data.course.id, self.course.id)
+        subscription = Subscription.objects.get(user=self.user, course=self.course)
+        self.assertEqual(subscription.user.id, self.user.id)
+        self.assertEqual(subscription.course.id, self.course.id)
 
     def test_unsubscribe(self):
         """
