@@ -22,7 +22,7 @@ class Lesson(models.Model):
     description = models.TextField()
     preview = models.ImageField(upload_to='lesson_previews/', verbose_name='превью урока', **NULLABLE)
     video_link = models.URLField()
-    course = models.ForeignKey(Course, default=1, on_delete=models.CASCADE, related_name='lessons')
+    course = models.ForeignKey(Course, default=None, on_delete=models.CASCADE, related_name='lessons')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

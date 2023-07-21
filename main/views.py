@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, status
 from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from main.models import Course, Lesson, Payment, Subscription
@@ -14,7 +15,7 @@ from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializ
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    permission_classes = [CustomCoursePermission]
+    permission_classes = [AllowAny] #[CustomCoursePermission]
     pagination_class = CoursePaginator
 
     def get_permissions(self):
@@ -67,7 +68,7 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
 class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsOwnerOrStaff]
+    permission_classes = [AllowAny] #[IsOwnerOrStaff]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
