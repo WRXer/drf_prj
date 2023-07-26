@@ -9,6 +9,7 @@ from main.models import Course, Lesson, Payment, Subscription
 from main.paginators import CoursePaginator, LessonPaginator
 from main.permissions import IsOwnerOrStaff, IsOwner, CustomCoursePermission
 from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
+from main.services import PaymentService
 
 
 # Create your views here.
@@ -83,7 +84,19 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
 
 class PaymentCreateAPIView(generics.CreateAPIView):
     """Эндпоинт по созданию платежа """
-    serializer_class = PaymentSerializer
+
+    def post(self, request, *args, **kwargs):
+        amount = 1000 * 100
+        currency = 'usd'
+        payment_method = 'card'
+
+        payment_service = PaymentService()
+        session_id = payment_service.create_payment(amount,currency)
+        if session_id:
+            return Response({"session": session_id}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Payment creation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class PaymentListAPIView(generics.ListAPIView):
