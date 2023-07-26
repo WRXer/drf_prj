@@ -9,10 +9,12 @@ from main.models import Course, Lesson, Payment, Subscription
 from main.paginators import CoursePaginator, LessonPaginator
 from main.permissions import IsOwnerOrStaff, IsOwner, CustomCoursePermission
 from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
+from main.services import PaymentService
 
 
 # Create your views here.
 class CourseViewSet(viewsets.ModelViewSet):
+    """Эндпоинт по курсу"""
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
     permission_classes = [AllowAny] #[CustomCoursePermission]
@@ -37,6 +39,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         new_lesson.save()
 
 class LessonCreateAPIView(generics.CreateAPIView):
+    """Эндпоинт по созданию урока """
     serializer_class = LessonSerializer
     permission_classes = [IsOwner]
 
@@ -47,6 +50,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
 
 
 class LessonListAPIView(generics.ListAPIView):
+    """Эндпоинт по просмотру уроков """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     pagination_class = LessonPaginator
@@ -66,21 +70,38 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
+    """Эндпоинт по обновлению урока """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [AllowAny] #[IsOwnerOrStaff]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
+    """Эндпоинт по удалению урока """
     queryset = Lesson.objects.all()
     permission_classes = [IsOwner]
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
-    serializer_class = PaymentSerializer
+    """Эндпоинт по созданию платежа """
+
+    def post(self, request, *args, **kwargs):
+        amount = 1000 * 100
+        currency = 'usd'
+        payment_method = 'card'
+
+        payment_service = PaymentService()
+        session_id = payment_service.create_payment(amount,currency)
+        if session_id:
+            return Response({"session": session_id}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Payment creation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class PaymentListAPIView(generics.ListAPIView):
+    """Эндпоинт по просмотру платежей """
+
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
 
@@ -90,6 +111,8 @@ class PaymentListAPIView(generics.ListAPIView):
 
 
 class SubscribeView(generics.CreateAPIView):
+    """Эндпоинт по созданию подписки """
+
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
@@ -99,6 +122,8 @@ class SubscribeView(generics.CreateAPIView):
         serializer.save(user=self.request.user, course=course)
 
 class UnsubscribeView(generics.DestroyAPIView):
+    """Эндпоинт по удалению подписки """
+
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
