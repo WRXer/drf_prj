@@ -13,6 +13,7 @@ from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializ
 
 # Create your views here.
 class CourseViewSet(viewsets.ModelViewSet):
+    """Эндпоинт по курсу"""
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
     permission_classes = [AllowAny] #[CustomCoursePermission]
@@ -37,6 +38,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         new_lesson.save()
 
 class LessonCreateAPIView(generics.CreateAPIView):
+    """Эндпоинт по созданию урока """
     serializer_class = LessonSerializer
     permission_classes = [IsOwner]
 
@@ -47,6 +49,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
 
 
 class LessonListAPIView(generics.ListAPIView):
+    """Эндпоинт по просмотру уроков """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     pagination_class = LessonPaginator
@@ -66,21 +69,26 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
+    """Эндпоинт по обновлению урока """
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [AllowAny] #[IsOwnerOrStaff]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
+    """Эндпоинт по удалению урока """
     queryset = Lesson.objects.all()
     permission_classes = [IsOwner]
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
+    """Эндпоинт по созданию платежа """
     serializer_class = PaymentSerializer
 
 
 class PaymentListAPIView(generics.ListAPIView):
+    """Эндпоинт по просмотру платежей """
+
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
 
@@ -90,6 +98,8 @@ class PaymentListAPIView(generics.ListAPIView):
 
 
 class SubscribeView(generics.CreateAPIView):
+    """Эндпоинт по созданию подписки """
+
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
@@ -99,6 +109,8 @@ class SubscribeView(generics.CreateAPIView):
         serializer.save(user=self.request.user, course=course)
 
 class UnsubscribeView(generics.DestroyAPIView):
+    """Эндпоинт по удалению подписки """
+
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
