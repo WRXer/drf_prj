@@ -10,7 +10,7 @@ from main.paginators import CoursePaginator, LessonPaginator
 from main.permissions import IsOwnerOrStaff, IsOwner, CustomCoursePermission
 from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from main.services import PaymentService
-from main.tasks import example_task, send_update_course
+from main.tasks import send_update_course
 
 
 # Create your views here.

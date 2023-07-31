@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+from datetime import timedelta
+
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -170,7 +172,12 @@ AUTH_USER_MODEL= 'users.User'
 
 # URL-адрес брокера сообщений
 CELERY_BROKER_URL = 'redis://localhost:6379' # Например, Redis, который по умолчанию работает на порту 6379
-
+CELERY_BEAT_SCHEDULE = {
+    'block-inactive-users': {
+        'task': 'main.tasks.block_inactive_users',
+        'schedule': timedelta(minutes=1),  # Периодичность выполнения задачи (1 раз в день)
+    },
+}
 # URL-адрес брокера результатов, также Redis
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 

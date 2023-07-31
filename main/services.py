@@ -1,5 +1,8 @@
 import stripe
-import requests
+import json
+from datetime import datetime, timedelta
+
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
 
 class PaymentService:
@@ -35,3 +38,20 @@ class PaymentService:
         except stripe.error.StripeError as e:
             print(f"Error: {e}")
             return None
+
+
+def set_schedule(*args, **kwargs):
+    schedule, created = IntervalSchedule.objects.get_or_create(
+        every=1,
+        period=IntervalSchedule.MINUTES,
+    )
+    PeriodicTask.objects.create(
+        interval=schedule,  # we created this above.
+        name='block_inactive_users',  # simply describes this periodic task.
+        task='main.tasks.block_inactive_users',  # name of task.
+        args=json.dumps(['arg1', 'arg2']),
+        kwargs=json.dumps({
+            'be_careful': True,
+        }),
+        expires=datetime.utcnow() + timedelta(seconds=30)
+    )
