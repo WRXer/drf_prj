@@ -10,6 +10,7 @@ from main.paginators import CoursePaginator, LessonPaginator
 from main.permissions import IsOwnerOrStaff, IsOwner, CustomCoursePermission
 from main.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from main.services import PaymentService
+from main.tasks import send_update_course
 
 
 # Create your views here.
@@ -45,6 +46,8 @@ class LessonCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         new_lesson = serializer.save()
+        if new_lesson:
+            send_update_course(new_lesson.course.id)
         new_lesson.owner = self.request.user
         new_lesson.save()
 
